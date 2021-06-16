@@ -1,18 +1,17 @@
 import StackDice as sd
 from typing import Dict
+import keys
 
 import discord
 from discord.ext import commands
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
 
 global app
 
 if __name__ == '__main__':
     app = commands.Bot(command_prefix='!')
 
-    credentials = ServiceAccountCredentials.from_json_keyfile_name("dicebot-key.json")
-    gc = gspread.authorize(credentials)
+    gc = gspread.authorize(keys.credentials)
     docs: Dict[str, gspread.Spreadsheet] = {}
     player: Dict[str, gspread.Worksheet] = {}
     fixed_sheet_position: Dict[str, str] = {
@@ -107,6 +106,10 @@ def roll_sheet(worksheet: gspread.Worksheet, target):
         row = cell.row
         col = cell.col
         v = int(worksheet.cell(row, col + 4).value)
+    return [value, v, judgement(value, v)]
+
+
+def judgement(value, v):
     result = {
         v < value: "실패",
         (v < 50 and value >= 96): "대실패",
@@ -116,9 +119,16 @@ def roll_sheet(worksheet: gspread.Worksheet, target):
         value == 1: "1!",
         value == 100: "100!"
     }.get(True)
+    return result
 
-    return [value, v, result]
 
+# TODO : p-dice(xd10), b-dice(xd10),
+#  apply normal expression
+# !rr (근력 condition)
+# !rr 근력 +(d10+20)
+# => replace "sheet-value" to scalar value
+# !rr 근력 p2
+# !rr 근력 b1
 
 @app.command(name='rr', pass_context=True)
 async def roll2(ctx: discord.ext.commands.Context, *args):
@@ -203,7 +213,6 @@ async def stat_sheet(ctx: discord.ext.commands.Context):
         await ctx.send(embed=embed_message)
 
 
-# TODO: role(TRPG-Master) can remove registered player sheets
 @app.command(name='rclear', pass_context=True)
 async def stat_sheet(ctx: discord.ext.commands.Context):
     roles = [role for role in ctx.author.roles if role.name == "TRPG 마스터"]
@@ -232,4 +241,4 @@ async def stat_sheet(ctx: discord.ext.commands.Context):
     await ctx.send(embed=embed_message)
 
     
-app.run(open("./TOKEN").readline())
+app.run(keys.TOKEN)
