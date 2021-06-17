@@ -348,7 +348,7 @@ async def stat_sheet(ctx: discord.ext.commands.Context):
                                           color=0xff8400)
             embed_message.add_field(name="등록 해제 목록", value='\n'.join(message), inline=False)
         else:
-            embed_message = discord.Embed(title=f":x: 플레이어 시트를 등록 해제할 플레이어가 없습니다.",
+            embed_message = discord.Embed(title=f":x: 등록 해제할 플레이어 시트가 없습니다.",
                                           description=f"마스터: {ctx.author.mention}",
                                           color=0xff8400)
     else:
