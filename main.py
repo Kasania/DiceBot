@@ -13,6 +13,7 @@ if __name__ == '__main__':
 
     gc = gspread.authorize(keys.credentials)
     docs: Dict[str, gspread.Spreadsheet] = {}
+    pre_docs: Dict[str, gspread.Spreadsheet] = {}
     player: Dict[str, gspread.Worksheet] = {}
     fixed_sheet_position: Dict[str, str] = {
         "근력": "P7",
@@ -200,18 +201,6 @@ def calc_penalty(value, num, dices):
     return result
 
 
-# TODO : p-dice(xd10), b-dice(xd10),
-#  apply normal expression
-# !rr (근력 condition)
-# !rr 근력 +(d10+20)
-# => replace "sheet-value" to scalar value
-
-
-# !rr 근력 p2 -> correct
-# !rr 근력 b1 -> correct
-
-# find value from sheet -> calc expression -> judgement values -> return result
-
 @app.command(name='rr', pass_context=True)
 async def roll2(ctx: discord.ext.commands.Context, *args):
     key = str(ctx.guild) + str(ctx.author)
@@ -254,14 +243,115 @@ async def roll2(ctx: discord.ext.commands.Context, *args):
         await ctx.send(embed=embed_message)
 
 
+# TODO: !rremove @name
+# TODO: !rremoveall
+
+@app.command(name='radd', pass_context=True)
+async def alias_sheet(ctx: discord.ext.commands.Context, *args):
+    roles = [role for role in ctx.author.roles if role.name == "TRPG 마스터"]
+
+    name = args[0]
+    uri = args[1]
+
+    if len(roles) > 0:
+        try:
+            guild: discord.guild.Guild = ctx.guild
+            doc = gc.open_by_url(uri)
+            key = str(guild) + str(name)
+            if key in pre_docs.keys():
+                embed_message = discord.Embed(title=f"{name} 이름의 시트 링크는 이미 존재합니다.",
+                                              description=f"마스터 : {ctx.author.mention}", color=0xff8400)
+                embed_message.add_field(name="시트링크", value=pre_docs[key].url, inline=False)
+                await ctx.send(embed=embed_message)
+            else:
+                pre_docs[key] = doc
+                embed_message = discord.Embed(title=f"{name} 시트 링크를 등록했습니다.",
+                                              description=f"마스터 : {ctx.author.mention}", color=0xff8400)
+                embed_message.add_field(name="시트링크", value=pre_docs[key].url, inline=False)
+                await ctx.send(embed=embed_message)
+
+        except gspread.exceptions.APIError as e:
+            err_text = str(e.response)
+            if err_text == '<Response [403]>':
+                embed_message = discord.Embed(title=f":x: 시트의 접근권한이 없습니다.",
+                                              description=f"마스터 : {ctx.author.mention} \n 시트의 접근권한을 변경해 주세요.",
+                                              color=0xff8400)
+                await ctx.send(embed=embed_message)
+    else:
+        embed_message = discord.Embed(title=f":x: 명령을 수행할 권한이 없습니다.",
+                                      description=f"플레이어 : {ctx.author.mention}", color=0xff8400)
+        await ctx.send(embed=embed_message)
+
+
+@app.command(name='rremove', pass_context=True)
+async def remove_sheet(ctx: discord.ext.commands.Context, *args):
+    roles = [role for role in ctx.author.roles if role.name == "TRPG 마스터"]
+
+    name = args[0]
+    if len(roles) > 0:
+        guild: discord.guild.Guild = ctx.guild
+        key = str(guild) + str(name)
+        print(pre_docs)
+        if key in pre_docs.keys():
+            del pre_docs[key]
+            embed_message = discord.Embed(title=f"{name} 이름의 시트 링크를 등록 해제했습니다..",
+                                          description=f"마스터 : {ctx.author.mention}", color=0xff8400)
+            await ctx.send(embed=embed_message)
+        else:
+            embed_message = discord.Embed(title=f"{name} 이름의 시트 링크는 존재하지 않습니다.",
+                                          description=f"마스터 : {ctx.author.mention}", color=0xff8400)
+            await ctx.send(embed=embed_message)
+    else:
+        embed_message = discord.Embed(title=f":x: 명령을 수행할 권한이 없습니다.",
+                                      description=f"플레이어 : {ctx.author.mention}", color=0xff8400)
+        await ctx.send(embed=embed_message)
+
+
+@app.command(name='rremoveall', pass_context=True)
+async def remove_all_sheet(ctx: discord.ext.commands.Context):
+    roles = [role for role in ctx.author.roles if role.name == "TRPG 마스터"]
+
+    if len(roles) > 0:
+        deleted_sheet = []
+        for pd in pre_docs:
+            if pd.startswith(str(ctx.guild)):
+                deleted_sheet.append(pd)
+        message = []
+        for ds in deleted_sheet:
+            message.append(pre_docs[ds].url)
+            del pre_docs[ds]
+
+        if len(message) > 0:
+            embed_message = discord.Embed(title=f":x: 다음 시트를 등록 해제했습니다.",
+                                          description=f"마스터: {ctx.author.mention}",
+                                          color=0xff8400)
+            embed_message.add_field(name="등록 해제 목록", value='\n'.join(message), inline=False)
+            await ctx.send(embed=embed_message)
+        else:
+            embed_message = discord.Embed(title=f":x: 등록 해제할 플레이어 시트가 없습니다.",
+                                          description=f"마스터: {ctx.author.mention}",
+                                          color=0xff8400)
+            await ctx.send(embed=embed_message)
+    else:
+        embed_message = discord.Embed(title=f":x: 명령을 수행할 권한이 없습니다.",
+                                      description=f"플레이어 : {ctx.author.mention}", color=0xff8400)
+        await ctx.send(embed=embed_message)
+
 @app.command(name='ruse', pass_context=True)
-async def use_sheet(ctx: discord.ext.commands.Context, *args):
+async def use_player_sheet(ctx: discord.ext.commands.Context, *args):
     try:
         user = ctx.author
         guild: discord.guild.Guild = ctx.guild
 
         uri = args[0]
-        doc = gc.open_by_url(uri)
+        key = str(guild) + str(uri)
+        if key in pre_docs.keys:
+            doc = pre_docs[key]
+        else:
+            try:
+                doc = gc.open_by_url(uri)
+            except gspread.exceptions.NoValidUrlKeyFound:
+                raise Exception
         sheet_name = args[1]
         sheet = doc.worksheet(sheet_name)
         docs[str(guild)+str(user)] = doc
@@ -288,7 +378,7 @@ async def use_sheet(ctx: discord.ext.commands.Context, *args):
 
 
 @app.command(name='rreset', pass_context=True)
-async def add_sheet(ctx: discord.ext.commands.Context):
+async def reset_player_sheet(ctx: discord.ext.commands.Context):
     key = str(ctx.guild) + str(ctx.author)
     try:
         if key in player:
@@ -308,7 +398,7 @@ async def add_sheet(ctx: discord.ext.commands.Context):
 
 
 @app.command(name='rstat', pass_context=True)
-async def stat_sheet(ctx: discord.ext.commands.Context):
+async def stat_player_sheet(ctx: discord.ext.commands.Context):
     try:
         key = str(ctx.guild)+str(ctx.author)
         if key in player:
@@ -329,7 +419,7 @@ async def stat_sheet(ctx: discord.ext.commands.Context):
 
 
 @app.command(name='rclear', pass_context=True)
-async def stat_sheet(ctx: discord.ext.commands.Context):
+async def clear_player_sheet(ctx: discord.ext.commands.Context):
     roles = [role for role in ctx.author.roles if role.name == "TRPG 마스터"]
 
     if len(roles) > 0:
