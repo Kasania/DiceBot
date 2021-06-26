@@ -370,7 +370,7 @@ async def use_player_sheet(ctx: discord.ext.commands.Context, *args):
 
         uri = args[0]
         key = str(guild) + str(uri)
-        if key in pre_docs.keys:
+        if key in pre_docs:
             doc = pre_docs[key]
         else:
             try:
@@ -395,11 +395,11 @@ async def use_player_sheet(ctx: discord.ext.commands.Context, *args):
     except gspread.exceptions.WorksheetNotFound:
         embed_message = discord.Embed(title=":x: 올바르지 않은 시트이름입니다.", color=0xff8400)
         await ctx.send(embed=embed_message)
-    except Exception as e:
-        embed_message = discord.Embed(title=f":x: 명령을 수행하는데 실패했습니다.",
-                                      description=f"플레이어 : {ctx.author.mention}", color=0xff8400)
-        print(e)
-        await ctx.send(embed=embed_message)
+    # except Exception as e:
+    #     embed_message = discord.Embed(title=f":x: 명령을 수행하는데 실패했습니다.",
+    #                                   description=f"플레이어 : {ctx.author.mention}", color=0xff8400)
+    #     print(e)
+    #     await ctx.send(embed=embed_message)
 
 
 @app.command(name='rreset', pass_context=True)
