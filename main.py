@@ -318,7 +318,7 @@ async def remove_sheet(ctx: discord.ext.commands.Context, *args):
         key = str(guild) + str(name)
         if key in pre_docs.keys():
             del pre_docs[key]
-            embed_message = discord.Embed(title=f"{name} 이름의 시트 별명을 등록 해제했습니다..",
+            embed_message = discord.Embed(title=f"{name} 이름의 시트 별명을 등록 해제했습니다.",
                                           description=f"마스터 : {ctx.author.mention}", color=0xff8400)
             await ctx.send(embed=embed_message)
         else:
@@ -346,13 +346,13 @@ async def remove_all_sheet(ctx: discord.ext.commands.Context):
             del pre_docs[ds]
 
         if len(message) > 0:
-            embed_message = discord.Embed(title=f":x: 다음 시트를 등록 해제했습니다.",
+            embed_message = discord.Embed(title=f":x: 다음 시트 별명을 등록 해제했습니다.",
                                           description=f"마스터: {ctx.author.mention}",
                                           color=0xff8400)
             embed_message.add_field(name="등록 해제 목록", value='\n'.join(message), inline=False)
             await ctx.send(embed=embed_message)
         else:
-            embed_message = discord.Embed(title=f":x: 등록 해제할 플레이어 시트가 없습니다.",
+            embed_message = discord.Embed(title=f":x: 등록 해제할 시트 별명이 없습니다.",
                                           description=f"마스터: {ctx.author.mention}",
                                           color=0xff8400)
             await ctx.send(embed=embed_message)
