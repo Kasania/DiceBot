@@ -60,7 +60,8 @@ async def help_message(ctx: discord.ext.commands.Context):
                                   '\n'
                                   '`!r 1d100 < 50`처럼 판정값의 성공/실패를 체크할 수 있습니다.\n'
                                   '\n'
-                                  '`!다이스2`로 CoC 7th 특화기능 명령어를 확인 하실 수 있습니다.',
+                                  '`!다이스2`로 CoC 7th 특화기능 명령어를 확인 하실 수 있습니다.\n\n'
+                                  '`!다이스3`로 CoC 7th 세션 마스터용 명령어를 확인 하실 수 있습니다.',
                                   color=0xff8400)
     await ctx.send(embed=embed_message)
 
@@ -72,15 +73,18 @@ async def help_message2(ctx: discord.ext.commands.Context):
                                   '**CoC 7th 특화기능**\n'
                                   '`!roll ccc`\n'
                                   '`!ruse [시트링크] [시트이름]`\n'
+                                  '`!ruse [시트별명] [시트이름]`\n'
                                   '`!rr [특성치/기능치] (보정치)`\n'
                                   '`!rstat`\n'
                                   '`!rreset`\n'
-                                  '`!rclear`\n'
                                   '\n'
                                   '`!r ccc`로 CoC 7th 캐릭터 메이킹을 빠르게 진행 할 수 있습니다.\n'
                                   '`!ruse [구글스프레드시트링크] [시트이름]`으로 간편 판정 탐사자를 등록 할 수 있습니다.\n'
-                                  'ex> `!ruse https://docs.google.com/spreadsheets/d/1CzAo97L-ioGFHo_d8MC64nxAKiLchd'
-                                  '-MkixYL4mxjwE \"조 종사(Niq)\"` '
+                                  'ex> `!ruse https://docs.google.com/spreadsheets/d/'
+                                  '1CzAo97L-ioGFHo_d8MC64nxAKiLchd-MkixYL4mxjwE \"조 종사(Niq)\"` \n\n'
+                                  '마스터가 시트 별명을 미리 등록한 경우, \n'
+                                  '`!ruse [시트별명] [시트이름]`으로 간편 판정 탐사자를 등록 할 수 있습니다.\n'
+                                  'ex> `!ruse 테스트용별명 \"조 종사(Niq)\"` '
                                   '\n'
                                   '\n'
                                   '`!rr [판정이름]`으로 등록한 탐사자 특성/기능치 판별을 빠르게 할 수 있습니다.'
@@ -97,8 +101,35 @@ async def help_message2(ctx: discord.ext.commands.Context):
                                   '\n'
                                   '`!rreset`으로 등록한 탐사자를 해제할 수 있습니다.'
                                   '\n'
+                                  ,
+                                  color=0xff8400)
+    await ctx.send(embed=embed_message)
+
+
+@app.command(name='다이스3')
+async def help_message2(ctx: discord.ext.commands.Context):
+    embed_message = discord.Embed(title=f":game_die: 주사위(다이스) 사용법",
+                                  description=
+                                  '**CoC 7th 특화기능**\n'
+                                  '**TRPG 마스터 전용**\n'
+                                  '`!radd [시트 별명] [시트링크] `\n'
+                                  '`!rremove [시트 별명]`\n'
+                                  '`!rremoveall`\n'
+                                  '`!rclear`\n'
                                   '\n'
-                                  '`TRPG 마스터는 !rclear`으로 등록된 모든 탐사자를 일괄 해제할 수 있습니다.'
+                                  '`!radd [구글스프레드시트링크] [시트이름]`으로 시트 링크에 별명을 설정할 수 있습니다.\n'
+                                  'ex> `!radd 테스트용별명 https://docs.google.com/spreadsheets/d/'
+                                  '1CzAo97L-ioGFHo_d8MC64nxAKiLchd-MkixYL4mxjwE`'
+                                  '\n'
+                                  '\n'
+                                  '`!rremove [시트별명]`으로 등록된 시트 별명을 해제할 수 있습니다.'
+                                  '\n'
+                                  '\n'
+                                  '`!rremoveall`으로 등록된 모든 시트 별명을 일괄 해제할 수 있습니다.'
+                                  '\n'
+                                  '\n'
+                                  '`!rclear`으로 등록된 모든 탐사자를 일괄 해제할 수 있습니다.'
+
                                   ,
                                   color=0xff8400)
     await ctx.send(embed=embed_message)
@@ -146,9 +177,6 @@ def judgement(value, v):
     return [value, result]
 
 
-# roll nd10
-# pickup min num,
-# return value mod10 + min*10
 def calc_bonus(value, num, dices):
     dice = list()
     sd.dice(num, 10, dice)
@@ -243,9 +271,6 @@ async def roll2(ctx: discord.ext.commands.Context, *args):
         await ctx.send(embed=embed_message)
 
 
-# TODO: !rremove @name
-# TODO: !rremoveall
-
 @app.command(name='radd', pass_context=True)
 async def alias_sheet(ctx: discord.ext.commands.Context, *args):
     roles = [role for role in ctx.author.roles if role.name == "TRPG 마스터"]
@@ -259,13 +284,13 @@ async def alias_sheet(ctx: discord.ext.commands.Context, *args):
             doc = gc.open_by_url(uri)
             key = str(guild) + str(name)
             if key in pre_docs.keys():
-                embed_message = discord.Embed(title=f"{name} 이름의 시트 링크는 이미 존재합니다.",
+                embed_message = discord.Embed(title=f"{name} 이름의 시트 별명은 이미 존재합니다.",
                                               description=f"마스터 : {ctx.author.mention}", color=0xff8400)
                 embed_message.add_field(name="시트링크", value=pre_docs[key].url, inline=False)
                 await ctx.send(embed=embed_message)
             else:
                 pre_docs[key] = doc
-                embed_message = discord.Embed(title=f"{name} 시트 링크를 등록했습니다.",
+                embed_message = discord.Embed(title=f"{name} 시트 별명을 등록했습니다.",
                                               description=f"마스터 : {ctx.author.mention}", color=0xff8400)
                 embed_message.add_field(name="시트링크", value=pre_docs[key].url, inline=False)
                 await ctx.send(embed=embed_message)
@@ -291,14 +316,13 @@ async def remove_sheet(ctx: discord.ext.commands.Context, *args):
     if len(roles) > 0:
         guild: discord.guild.Guild = ctx.guild
         key = str(guild) + str(name)
-        print(pre_docs)
         if key in pre_docs.keys():
             del pre_docs[key]
-            embed_message = discord.Embed(title=f"{name} 이름의 시트 링크를 등록 해제했습니다..",
+            embed_message = discord.Embed(title=f"{name} 이름의 시트 별명을 등록 해제했습니다..",
                                           description=f"마스터 : {ctx.author.mention}", color=0xff8400)
             await ctx.send(embed=embed_message)
         else:
-            embed_message = discord.Embed(title=f"{name} 이름의 시트 링크는 존재하지 않습니다.",
+            embed_message = discord.Embed(title=f"{name} 이름의 시트 별명은 존재하지 않습니다.",
                                           description=f"마스터 : {ctx.author.mention}", color=0xff8400)
             await ctx.send(embed=embed_message)
     else:
@@ -336,6 +360,7 @@ async def remove_all_sheet(ctx: discord.ext.commands.Context):
         embed_message = discord.Embed(title=f":x: 명령을 수행할 권한이 없습니다.",
                                       description=f"플레이어 : {ctx.author.mention}", color=0xff8400)
         await ctx.send(embed=embed_message)
+
 
 @app.command(name='ruse', pass_context=True)
 async def use_player_sheet(ctx: discord.ext.commands.Context, *args):
