@@ -377,7 +377,8 @@ async def use_player_sheet(ctx: discord.ext.commands.Context, *args):
                 doc = gc.open_by_url(uri)
             except gspread.exceptions.NoValidUrlKeyFound:
                 raise Exception
-        sheet_name = args[1]
+
+        sheet_name = ' '.join(args[1:])
         sheet = doc.worksheet(sheet_name)
         docs[str(guild)+str(user)] = doc
         player[str(guild)+str(user)] = sheet
