@@ -147,7 +147,7 @@ async def r(ctx: discord.ext.commands.Context, *args):
 @app.command(name='roll', pass_context=True)
 async def roll(ctx: discord.ext.commands.Context, *args):
     query = ''.join(args)
-    print(' '.join([ctx.message.author.mention, 'query', query]))
+    print(' '.join([str(ctx.guild), ':', str(ctx.author), 'query', query]))
     if args[0] == 'ccc':
         await sd.make_character(ctx)
     else:
@@ -235,6 +235,7 @@ def calc_penalty(value, num, dices):
 
 @app.command(name='rr', pass_context=True)
 async def roll2(ctx: discord.ext.commands.Context, *args):
+    print(' '.join([str(ctx.guild), ':', str(ctx.author), 'rr', ' '.join(args)]))
     key = str(ctx.guild) + str(ctx.author)
     try:
 
@@ -277,6 +278,7 @@ async def roll2(ctx: discord.ext.commands.Context, *args):
 
 @app.command(name='radd', pass_context=True)
 async def alias_sheet(ctx: discord.ext.commands.Context, *args):
+    print(' '.join([str(ctx.guild), ':', str(ctx.author), 'radd', ' '.join(args)]))
     roles = [role for role in ctx.author.roles if role.name == "TRPG 마스터"]
 
     name = args[0]
@@ -314,6 +316,7 @@ async def alias_sheet(ctx: discord.ext.commands.Context, *args):
 
 @app.command(name='rremove', pass_context=True)
 async def remove_sheet(ctx: discord.ext.commands.Context, *args):
+    print(' '.join([str(ctx.guild), ':', str(ctx.author), 'rremove', ' '.join(args)]))
     roles = [role for role in ctx.author.roles if role.name == "TRPG 마스터"]
 
     name = args[0]
@@ -337,6 +340,7 @@ async def remove_sheet(ctx: discord.ext.commands.Context, *args):
 
 @app.command(name='rremoveall', pass_context=True)
 async def remove_all_sheet(ctx: discord.ext.commands.Context):
+    print(' '.join([str(ctx.guild), ':', str(ctx.author), 'rremoveall']))
     roles = [role for role in ctx.author.roles if role.name == "TRPG 마스터"]
 
     if len(roles) > 0:
@@ -368,6 +372,7 @@ async def remove_all_sheet(ctx: discord.ext.commands.Context):
 
 @app.command(name='ruse', pass_context=True)
 async def use_player_sheet(ctx: discord.ext.commands.Context, *args):
+    print(' '.join([str(ctx.guild), ':', str(ctx.author), 'ruse', ' '.join(args)]))
     try:
         user = ctx.author
         guild: discord.guild.Guild = ctx.guild
@@ -409,6 +414,7 @@ async def use_player_sheet(ctx: discord.ext.commands.Context, *args):
 
 @app.command(name='rreset', pass_context=True)
 async def reset_player_sheet(ctx: discord.ext.commands.Context):
+    print(' '.join([str(ctx.guild), ':', str(ctx.author), 'rreset']))
     key = str(ctx.guild) + str(ctx.author)
     try:
         if key in player:
@@ -429,6 +435,7 @@ async def reset_player_sheet(ctx: discord.ext.commands.Context):
 
 @app.command(name='rstat', pass_context=True)
 async def stat_player_sheet(ctx: discord.ext.commands.Context):
+    print(' '.join([str(ctx.guild), ':', str(ctx.author), 'rstat']))
     try:
         key = str(ctx.guild)+str(ctx.author)
         if key in player:
@@ -450,6 +457,7 @@ async def stat_player_sheet(ctx: discord.ext.commands.Context):
 
 @app.command(name='rclear', pass_context=True)
 async def clear_player_sheet(ctx: discord.ext.commands.Context):
+    print(' '.join([str(ctx.guild), ':', str(ctx.author), 'rclaer']))
     roles = [role for role in ctx.author.roles if role.name == "TRPG 마스터"]
 
     if len(roles) > 0:
