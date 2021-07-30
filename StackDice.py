@@ -52,8 +52,10 @@ def split_tokens(expr_str):
 # .replace('>=', '$')
 def convert_expr(token_list):
     prec = {
-        'f': 6,
-        'd': 5,
+        'f': 7,
+        'd': 6,
+        'h': 5,
+        'l': 5,
         '*': 4,
         '/': 4,
         '+': 3,
@@ -93,6 +95,8 @@ def convert_expr(token_list):
     return postfix_list
 
 
+# TODO: hx -> peek highest x dice
+# TODO: lx -> peek lowest x dice
 def postfix_eval(token_list, dices, judge):
     val_stack = Stack()
     for token in token_list:
@@ -106,6 +110,14 @@ def postfix_eval(token_list, dices, judge):
             if not val_stack.is_empty():
                 n2 = val_stack.pop()
             val_stack.push(dice(n2, n1, dices))
+        elif token == 'h':
+            n1 = val_stack.pop()
+            val_stack.pop()
+            val_stack.push(peek_high(n1, dices))
+        elif token == 'l':
+            n1 = val_stack.pop()
+            val_stack.pop()
+            val_stack.push(peek_low(n1, dices))
         else:
             n1 = val_stack.pop()
             n2 = val_stack.pop()
@@ -168,6 +180,30 @@ def dice(x, y, dices):
     d.append(''.join(map(str, s)))
     dices.append(d)
     return value
+
+
+def peek_high(x, dices: list):
+    ddice = dices[-1].copy()
+    txt: str = ddice[-1]
+    ddice = ddice[:-1]
+    ddice.sort(reverse=True)
+    sdice = ddice[:x]
+    s = [txt.split('=')[0], 'h', str(x), '=', str(sum(sdice))]
+    sdice.append(''.join(map(str, s)))
+    dices[-1] = sdice
+    return sum(sdice[:-1])
+
+
+def peek_low(x, dices: list):
+    ddice = dices[-1].copy()
+    txt: str = ddice[-1]
+    ddice = ddice[:-1]
+    ddice.sort()
+    sdice = ddice[:x]
+    s = [txt.split('=')[0], 'l', str(x), '=', str(sum(sdice))]
+    sdice.append(''.join(map(str, s)))
+    dices[-1] = sdice
+    return sum(sdice[:-1])
 
 
 def calc_expr(expr, dices, judge=None):
