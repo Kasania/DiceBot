@@ -47,6 +47,7 @@ async def help_message(ctx: discord.ext.commands.Context):
                                   '`!roll NdR` `!roll Ndf`\n'
                                   '`!roll NdR + X` `!roll NdR - X` `!roll NdR * X` `!roll NdR / X`\n'
                                   '`!roll NdR < X` `!roll NdR > X` `!roll NdR <= X` `!roll NdR >= X`\n'
+                                  '`!roll NdRhX` `!roll NdRlX`\n'
                                   '`!roll NdR + MdS ...`\n'
                                   '\n'
                                   '※ `!r NdR`로 입력하실 수도 있습니다.\n'
@@ -59,6 +60,9 @@ async def help_message(ctx: discord.ext.commands.Context):
                                   '`!r (3d6+4df)*5+5d8`처럼 여러개의 주사위를 연결해서 굴리실 수 있습니다.\n'
                                   '\n'
                                   '`!r 1d100 < 50`처럼 판정값의 성공/실패를 체크할 수 있습니다.\n'
+                                  '\n'
+                                  '`!r 20d100h10`을 사용하면 20개의 d100 주사위를 굴린후, 상위 10개의 주사위 값을 사용 할 수 있습니다.\n'
+                                  '`!r 10d100l1`을 사용하면 10개의 d100 주사위를 굴린후, 하위 1개의 주사위 값을 사용 할 수 있습니다.\n'
                                   '\n'
                                   '`!다이스2`로 CoC 7th 특화기능 명령어를 확인 하실 수 있습니다.\n\n'
                                   '`!다이스3`로 CoC 7th 세션 마스터용 명령어를 확인 하실 수 있습니다.',
