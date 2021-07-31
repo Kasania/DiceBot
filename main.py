@@ -120,6 +120,8 @@ async def help_message(ctx: discord.ext.commands.Context):
                                   '`!roll NdR < X` `!roll NdR > X` `!roll NdR <= X` `!roll NdR >= X`\n'
                                   '`!roll NdRhX` `!roll NdRlX`\n'
                                   '`!roll NdR + MdS ...`\n'
+                                  '`!ra [name] [expr]`\n'
+                                  '`!rs [name]`\n'
                                   '\n'
                                   '※ `!r NdR`로 입력하실 수도 있습니다.\n'
                                   '\n'
@@ -134,6 +136,9 @@ async def help_message(ctx: discord.ext.commands.Context):
                                   '\n'
                                   '`!r 20d100h10`을 사용하면 20개의 d100 주사위를 굴린후, 상위 10개의 주사위 값을 사용 할 수 있습니다.\n'
                                   '`!r 10d100l1`을 사용하면 10개의 d100 주사위를 굴린후, 하위 1개의 주사위 값을 사용 할 수 있습니다.\n'
+                                  '\n'
+                                  '`!ra attack 1d100>=80`처럼 특정 주사위 표현식에 별명을 설정 할 수 있습니다.\n'
+                                  '`!rs attack`으로 !ra 명령을 통해 설정한 주사위 표현식을 굴릴 수 있습니다.\n'
                                   '\n'
                                   '`!다이스2`로 CoC 7th 특화기능 명령어를 확인 하실 수 있습니다.\n\n'
                                   '`!다이스3`로 CoC 7th 세션 마스터용 명령어를 확인 하실 수 있습니다.',
