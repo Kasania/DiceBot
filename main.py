@@ -2,6 +2,7 @@ import StackDice as sd
 from typing import Dict
 import keys
 import logging
+import pickle
 
 import discord
 from discord.ext import commands
@@ -26,12 +27,46 @@ if __name__ == '__main__':
     file_debug_handler.setFormatter(formatter)
     logger.addHandler(file_debug_handler)
 
+    logger.info('Application start')
+
     app = commands.Bot(command_prefix='!')
 
     gc = gspread.authorize(keys.credentials)
+
+    # d: Dict[str, str] = {}
+    # pickle.dump(d, open('data/docs.txt', 'wb'))
+    # pickle.dump(d, open('data/docs_alias.txt', 'wb'))
+    # pickle.dump(d, open('data/sheet_data.txt', 'wb'))
+    # pickle.dump(d, open('data/dice_alias.txt', 'wb'))
+
+    data_docs: Dict[str, str] = pickle.load(open('data/docs.txt', 'rb'))
+    data_pre_docs: Dict[str, str] = pickle.load(open('data/docs_alias.txt', 'rb'))
+    data_player: Dict[str, str] = pickle.load(open('data/sheet_data.txt', 'rb'))
+    data_dice_alias: Dict[str, str] = pickle.load(open('data/dice_alias.txt', 'rb'))
+
+    # 사용중인 docs
     docs: Dict[str, gspread.Spreadsheet] = {}
+
+    # 별명이 지어진 docs
     pre_docs: Dict[str, gspread.Spreadsheet] = {}
+    pre_docs_uri: Dict[str, str] = {}
+    for key in data_pre_docs.keys():
+        pre_docs[key] = gc.open_by_url(data_pre_docs[key])
+
+    # docs 에서 사용하는 시트
     player: Dict[str, gspread.Worksheet] = {}
+    for key in data_player.keys():
+        tokens = data_player[key].split('→')
+        print(tokens)
+        docs[key] = gc.open_by_url(tokens[0])
+        player[key] = docs[key].worksheet(tokens[1])
+    # sheet.url + '→' + sheet_name
+
+    # guild:user:alias , query
+    dice_alias: Dict[str, str] = {}
+    for key in data_dice_alias.keys():
+        dice_alias[key] = data_dice_alias[key]
+
     fixed_sheet_position: Dict[str, str] = {
         "근력": "P7",
         "민첩": "T7",
@@ -44,8 +79,9 @@ if __name__ == '__main__':
         "행운": "C18",
         "이성": "V15"
     }
+    logger.info('Data load complete')
 
-# TODO: file loader, saver
+# TODO: file loader, saver, dice alias
 
 
 @app.event
@@ -333,6 +369,8 @@ async def alias_sheet(ctx: discord.ext.commands.Context, *args):
                 await ctx.send(embed=embed_message)
             else:
                 pre_docs[key] = doc
+                data_pre_docs[key] = uri
+                pickle.dump(data_pre_docs, open("data/docs_alias.txt", "wb"))
                 embed_message = discord.Embed(title=f"{name} 시트 별명을 등록했습니다.",
                                               description=f"마스터 : {ctx.author.mention}", color=0xff8400)
                 embed_message.add_field(name="시트링크", value=pre_docs[key].url, inline=False)
@@ -362,6 +400,8 @@ async def remove_sheet(ctx: discord.ext.commands.Context, *args):
         key = str(guild) + str(name)
         if key in pre_docs.keys():
             del pre_docs[key]
+            del data_pre_docs[key]
+            pickle.dump(data_pre_docs, open("data/docs_alias.txt", "wb"))
             embed_message = discord.Embed(title=f"{name} 이름의 시트 별명을 등록 해제했습니다.",
                                           description=f"마스터 : {ctx.author.mention}", color=0xff8400)
             await ctx.send(embed=embed_message)
@@ -389,8 +429,10 @@ async def remove_all_sheet(ctx: discord.ext.commands.Context):
         for ds in deleted_sheet:
             message.append(pre_docs[ds].url)
             del pre_docs[ds]
+            del data_pre_docs[ds]
 
         if len(message) > 0:
+            pickle.dump(data_pre_docs, open("data/docs_alias.txt", "wb"))
             embed_message = discord.Embed(title=f":x: 다음 시트 별명을 등록 해제했습니다.",
                                           description=f"마스터: {ctx.author.mention}",
                                           color=0xff8400)
@@ -418,9 +460,11 @@ async def use_player_sheet(ctx: discord.ext.commands.Context, *args):
         key = str(guild) + str(uri)
         if key in pre_docs:
             doc = pre_docs[key]
+            sheet_url = data_pre_docs[key]
         else:
             try:
                 doc = gc.open_by_url(uri)
+                sheet_url = uri
             except gspread.exceptions.NoValidUrlKeyFound:
                 raise Exception
 
@@ -428,6 +472,10 @@ async def use_player_sheet(ctx: discord.ext.commands.Context, *args):
         sheet = doc.worksheet(sheet_name)
         docs[str(guild)+str(user)] = doc
         player[str(guild)+str(user)] = sheet
+
+        data_player[str(guild) + str(user)] = sheet_url + '→' + sheet_name
+        pickle.dump(data_player, open("data/sheet_data.txt", "wb"))
+
         embed_message = discord.Embed(title=f"지금부터 \"{sheet.acell('E7').value}\" 탐사자를 사용합니다.",
                                       description=f"플레이어 : {ctx.author.mention}", color=0xff8400)
         await ctx.send(embed=embed_message)
@@ -442,11 +490,6 @@ async def use_player_sheet(ctx: discord.ext.commands.Context, *args):
     except gspread.exceptions.WorksheetNotFound:
         embed_message = discord.Embed(title=":x: 올바르지 않은 시트이름입니다.", color=0xff8400)
         await ctx.send(embed=embed_message)
-    # except Exception as e:
-    #     embed_message = discord.Embed(title=f":x: 명령을 수행하는데 실패했습니다.",
-    #                                   description=f"플레이어 : {ctx.author.mention}", color=0xff8400)
-    #     logger.info(e)
-    #     await ctx.send(embed=embed_message)
 
 
 @app.command(name='rreset', pass_context=True)
@@ -456,6 +499,8 @@ async def reset_player_sheet(ctx: discord.ext.commands.Context):
     try:
         if key in player:
             del player[key]
+            del data_player[key]
+            pickle.dump(data_player, open("data/sheet_data.txt", "wb"))
             embed_message = discord.Embed(title=f"탐사자 등록을 해제했습니다.", description=f"플레이어 : {ctx.author.mention}",
                                           color=0xff8400)
             await ctx.send(embed=embed_message)
@@ -507,7 +552,10 @@ async def clear_player_sheet(ctx: discord.ext.commands.Context):
         for du in deleted_user:
             message.append(player[du].title)
             del player[du]
+            del data_player[du]
+
         if len(message) > 0:
+            pickle.dump(data_player, open("data/sheet_data.txt", "wb"))
             embed_message = discord.Embed(title=f":x: 다음 플레이어 시트를 등록 해제했습니다.",
                                           description=f"마스터: {ctx.author.mention}",
                                           color=0xff8400)
