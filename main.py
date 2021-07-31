@@ -1,6 +1,7 @@
 import StackDice as sd
 from typing import Dict
 import keys
+import logging
 
 import discord
 from discord.ext import commands
@@ -9,6 +10,22 @@ import gspread
 global app
 
 if __name__ == '__main__':
+
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+
+    formatter = logging.Formatter('%(asctime)s : %(message)s', '%Y-%m-%d %H:%M:%S')
+
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+
+    file_debug_handler = logging.FileHandler(filename='log.txt', encoding='utf-8')
+    file_debug_handler.setLevel(logging.DEBUG)
+    file_debug_handler.setFormatter(formatter)
+    logger.addHandler(file_debug_handler)
+
     app = commands.Bot(command_prefix='!')
 
     gc = gspread.authorize(keys.credentials)
@@ -28,20 +45,24 @@ if __name__ == '__main__':
         "이성": "V15"
     }
 
+# TODO: file loader, saver
 
 
 @app.event
 async def on_ready():
-    print(f'{app.user} has connected to Discord!')
+    logger.info(f'{app.user} has connected to Discord!')
     await app.change_presence(status=discord.Status.online,
                               activity=discord.Activity(type=discord.ActivityType.listening, name="!다이스"))
     active_servers = app.guilds
+    logger.info("---Active Server List---")
     for guild in active_servers:
-        print(guild.name)
+        logger.info(guild.name)
+    logger.info("---Active Server List---")
 
 
 @app.command(name='다이스')
 async def help_message(ctx: discord.ext.commands.Context):
+    logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), 'help1']))
     embed_message = discord.Embed(title=f":game_die: 주사위(다이스) 사용법",
                                   description=
                                   '`!roll NdR` `!roll Ndf`\n'
@@ -72,6 +93,7 @@ async def help_message(ctx: discord.ext.commands.Context):
 
 @app.command(name='다이스2')
 async def help_message2(ctx: discord.ext.commands.Context):
+    logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), 'help2']))
     embed_message = discord.Embed(title=f":game_die: 주사위(다이스) 사용법",
                                   description=
                                   '**CoC 7th 특화기능**\n'
@@ -112,6 +134,7 @@ async def help_message2(ctx: discord.ext.commands.Context):
 
 @app.command(name='다이스3')
 async def help_message2(ctx: discord.ext.commands.Context):
+    logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), 'help3']))
     embed_message = discord.Embed(title=f":game_die: 주사위(다이스) 사용법",
                                   description=
                                   '**CoC 7th 특화기능**\n'
@@ -147,7 +170,7 @@ async def r(ctx: discord.ext.commands.Context, *args):
 @app.command(name='roll', pass_context=True)
 async def roll(ctx: discord.ext.commands.Context, *args):
     query = ''.join(args)
-    print(' '.join([str(ctx.guild), ':', str(ctx.author), 'query', query]))
+    logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), 'query', query]))
     if args[0] == 'ccc':
         await sd.make_character(ctx)
     else:
@@ -235,7 +258,7 @@ def calc_penalty(value, num, dices):
 
 @app.command(name='rr', pass_context=True)
 async def roll2(ctx: discord.ext.commands.Context, *args):
-    print(' '.join([str(ctx.guild), ':', str(ctx.author), 'rr', ' '.join(args)]))
+    logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), 'rr', ' '.join(args)]))
     key = str(ctx.guild) + str(ctx.author)
     try:
 
@@ -272,13 +295,13 @@ async def roll2(ctx: discord.ext.commands.Context, *args):
     except Exception as e:
         embed_message = discord.Embed(title=f":x: 지원하지 않는 명령어입니다.", description=f"플레이어 : {ctx.author.mention}",
                                       color=0xff8400)
-        print(e)
+        logger.info(e)
         await ctx.send(embed=embed_message)
 
 
 @app.command(name='radd', pass_context=True)
 async def alias_sheet(ctx: discord.ext.commands.Context, *args):
-    print(' '.join([str(ctx.guild), ':', str(ctx.author), 'radd', ' '.join(args)]))
+    logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), 'radd', ' '.join(args)]))
     roles = [role for role in ctx.author.roles if role.name == "TRPG 마스터"]
 
     name = args[0]
@@ -316,7 +339,7 @@ async def alias_sheet(ctx: discord.ext.commands.Context, *args):
 
 @app.command(name='rremove', pass_context=True)
 async def remove_sheet(ctx: discord.ext.commands.Context, *args):
-    print(' '.join([str(ctx.guild), ':', str(ctx.author), 'rremove', ' '.join(args)]))
+    logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), 'rremove', ' '.join(args)]))
     roles = [role for role in ctx.author.roles if role.name == "TRPG 마스터"]
 
     name = args[0]
@@ -340,7 +363,7 @@ async def remove_sheet(ctx: discord.ext.commands.Context, *args):
 
 @app.command(name='rremoveall', pass_context=True)
 async def remove_all_sheet(ctx: discord.ext.commands.Context):
-    print(' '.join([str(ctx.guild), ':', str(ctx.author), 'rremoveall']))
+    logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), 'rremoveall']))
     roles = [role for role in ctx.author.roles if role.name == "TRPG 마스터"]
 
     if len(roles) > 0:
@@ -372,7 +395,7 @@ async def remove_all_sheet(ctx: discord.ext.commands.Context):
 
 @app.command(name='ruse', pass_context=True)
 async def use_player_sheet(ctx: discord.ext.commands.Context, *args):
-    print(' '.join([str(ctx.guild), ':', str(ctx.author), 'ruse', ' '.join(args)]))
+    logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), 'ruse', ' '.join(args)]))
     try:
         user = ctx.author
         guild: discord.guild.Guild = ctx.guild
@@ -408,13 +431,13 @@ async def use_player_sheet(ctx: discord.ext.commands.Context, *args):
     # except Exception as e:
     #     embed_message = discord.Embed(title=f":x: 명령을 수행하는데 실패했습니다.",
     #                                   description=f"플레이어 : {ctx.author.mention}", color=0xff8400)
-    #     print(e)
+    #     logger.info(e)
     #     await ctx.send(embed=embed_message)
 
 
 @app.command(name='rreset', pass_context=True)
 async def reset_player_sheet(ctx: discord.ext.commands.Context):
-    print(' '.join([str(ctx.guild), ':', str(ctx.author), 'rreset']))
+    logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), 'rreset']))
     key = str(ctx.guild) + str(ctx.author)
     try:
         if key in player:
@@ -429,13 +452,13 @@ async def reset_player_sheet(ctx: discord.ext.commands.Context):
     except Exception as e:
         embed_message = discord.Embed(title=f":x: 명령을 수행하는데 실패했습니다.",
                                       description=f"플레이어 : {ctx.author.mention}", color=0xff8400)
-        print(e)
+        logger.info(e)
         await ctx.send(embed=embed_message)
 
 
 @app.command(name='rstat', pass_context=True)
 async def stat_player_sheet(ctx: discord.ext.commands.Context):
-    print(' '.join([str(ctx.guild), ':', str(ctx.author), 'rstat']))
+    logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), 'rstat']))
     try:
         key = str(ctx.guild)+str(ctx.author)
         if key in player:
@@ -451,13 +474,13 @@ async def stat_player_sheet(ctx: discord.ext.commands.Context):
     except Exception as e:
         embed_message = discord.Embed(title=f":x: 명령을 수행하는데 실패했습니다.",
                                       description=f"플레이어 : {ctx.author.mention}", color=0xff8400)
-        print(e)
+        logger.info(e)
         await ctx.send(embed=embed_message)
 
 
 @app.command(name='rclear', pass_context=True)
 async def clear_player_sheet(ctx: discord.ext.commands.Context):
-    print(' '.join([str(ctx.guild), ':', str(ctx.author), 'rclaer']))
+    logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), 'rclaer']))
     roles = [role for role in ctx.author.roles if role.name == "TRPG 마스터"]
 
     if len(roles) > 0:
