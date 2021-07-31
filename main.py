@@ -81,7 +81,7 @@ if __name__ == '__main__':
     }
     logger.info('Data load complete')
 
-# TODO: file loader, saver, dice alias
+# TODO: dice alias
 
 
 @app.event
@@ -227,7 +227,37 @@ async def roll(ctx: discord.ext.commands.Context, *args):
         await sd.roll_dice(ctx, query)
 
 
+@app.command(name='ra', pass_context=True)
+async def alias_dice(ctx: discord.ext.commands.Context, *args):
+    name = args[0]
+    query = ''.join(args[1:])
+    key = str(ctx.guild) + str(ctx.author)
+    logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), 'dice alias', ''.join(args)]))
+
+    dice_alias[key+":"+name] = query
+    data_dice_alias[key+":"+name] = query
+    pickle.dump(data_dice_alias, open('data/dice_alias.txt', 'wb'))
+
+    embed_message = discord.Embed(title="주사위 별명이 등록되었습니다.")
+    embed_message.add_field(name="플레이어", value=ctx.message.author.mention, inline=False)
+    embed_message.add_field(name="주사위 별명", value=name, inline=False)
+    embed_message.add_field(name="주사위 명령", value=query, inline=False)
+    await ctx.send(embed=embed_message)
+
+
+@app.command(name='rs', pass_context=True)
+async def roll_alias_dice(ctx: discord.ext.commands.Context, *args):
+    name = args[0]
+    key = str(ctx.guild) + str(ctx.author)
+    logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), 'roll alias', ''.join(args)]))
+    if key+":"+name in dice_alias.keys():
+        await roll(ctx, dice_alias[key+":"+name])
+    else:
+        embed_message = discord.Embed(title="존재하지 않는 주사위 별명입니다.")
+        await ctx.send(embed=embed_message)
+
 # ----
+
 
 def get_sheet_value(worksheet: gspread.Worksheet, target):
     if target in fixed_sheet_position.keys():

@@ -255,6 +255,7 @@ async def roll_dice(ctx: discord.ext.commands.Context, query):
         else:
             embed_message = discord.Embed(title=f":game_die: 결과: {result}", color=0xff8400)
 
+        embed_message.add_field(name="명령", value=query, inline=False)
         embed_message.add_field(name="플레이어", value=ctx.message.author.mention, inline=False)
         if len(judge) > 0:
             embed_message.add_field(name="판정 목록",
@@ -262,8 +263,9 @@ async def roll_dice(ctx: discord.ext.commands.Context, query):
         if len(dices) > 0:
             embed_message.add_field(name="주사위 목록",
                                     value='\n'.join(map(str, dices)), inline=False)
-        if len(embed_message) > 960:
+        if len(embed_message) > 900:
             embed_message = discord.Embed(title=f":game_die: 결과: {result}", color=0xff8400)
+            embed_message.add_field(name="명령", value=query, inline=False)
             embed_message.add_field(name="플레이어", value=ctx.message.author.mention, inline=False)
             embed_message.add_field(name="주사위 목록",
                                     value='\n'.join([item[-1] for item in dices]), inline=False)
