@@ -57,7 +57,6 @@ if __name__ == '__main__':
     player: Dict[str, gspread.Worksheet] = {}
     for key in data_player.keys():
         tokens = data_player[key].split('→')
-        print(tokens)
         docs[key] = gc.open_by_url(tokens[0])
         player[key] = docs[key].worksheet(tokens[1])
     # sheet.url + '→' + sheet_name
