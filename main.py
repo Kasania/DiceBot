@@ -57,7 +57,21 @@ async def on_ready():
     logger.info("---Active Server List---")
     for guild in active_servers:
         logger.info(guild.name)
-    logger.info("---Active Server List---")
+    logger.info(f"- Active Server count : {len(active_servers)} -")
+
+
+@app.event
+async def on_guild_join(guild):
+    logger.info('Bot has been added to a new server')
+    logger.info(f'Name of server: {guild}')
+    logger.info(f"- Active Server count : {len(app.guilds)} -")
+
+
+@app.event
+async def on_guild_remove(guild):
+    logger.info('Bot has been removed to a server')
+    logger.info(f'Name of server: {guild}')
+    logger.info(f"- Active Server count : {len(app.guilds)} -")
 
 
 @app.command(name='다이스')
