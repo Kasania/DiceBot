@@ -121,6 +121,7 @@ async def help_message(ctx: discord.ext.commands.Context):
                                   '`!roll NdR + MdS ...`\n'
                                   '`!ra [name] [expr]`\n'
                                   '`!rs [name]`\n'
+                                  '`!rt [name] [expr]`\n'
                                   '\n'
                                   '※ `!r NdR`로 입력하실 수도 있습니다.\n'
                                   '\n'
@@ -137,7 +138,8 @@ async def help_message(ctx: discord.ext.commands.Context):
                                   '`!r 10d100l1`을 사용하면 10개의 d100 주사위를 굴린후, 하위 1개의 주사위 값을 사용 할 수 있습니다.\n'
                                   '\n'
                                   '`!ra attack 1d100>=80`처럼 특정 주사위 표현식에 별명을 설정 할 수 있습니다.\n'
-                                  '`!rs attack`으로 !ra 명령을 통해 설정한 주사위 표현식을 굴릴 수 있습니다.\n'
+                                  '`!rs attack`처럼 `!ra` 명령을 통해 별명을 설정한 주사위 표현식을 굴릴 수 있습니다.\n'
+                                  '`!rt attack +1d6`처럼 !ra 명령을 통해 별명을 설정한 주사위 표현식에 추가 표현식을 합하여 굴릴 수 있습니다.\n'
                                   '\n'
                                   '`!다이스2`로 CoC 7th 특화기능 명령어를 확인 하실 수 있습니다.\n\n'
                                   '`!다이스3`로 CoC 7th 세션 마스터용 명령어를 확인 하실 수 있습니다.',
@@ -256,6 +258,18 @@ async def roll_alias_dice(ctx: discord.ext.commands.Context, *args):
     logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), 'roll alias', ''.join(args)]))
     if key+":"+name in dice_alias.keys():
         await roll(ctx, dice_alias[key+":"+name])
+    else:
+        embed_message = discord.Embed(title="존재하지 않는 주사위 별명입니다.")
+        await ctx.send(embed=embed_message)
+
+
+@app.command(name='rt', pass_context=True)
+async def roll_alias_dice_with_addition(ctx: discord.ext.commands.Context, *args):
+    name = args[0]
+    key = str(ctx.guild) + str(ctx.author)
+    logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), 'roll alias', ''.join(args)]))
+    if key+":"+name in dice_alias.keys():
+        await roll(ctx, dice_alias[key+":"+name]+''.join(args[1:]))
     else:
         embed_message = discord.Embed(title="존재하지 않는 주사위 별명입니다.")
         await ctx.send(embed=embed_message)
