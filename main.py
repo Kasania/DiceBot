@@ -65,11 +65,12 @@ if __name__ == '__main__':
 
     gv.logger.info('Data load complete')
 
-    app = commands.Bot(command_prefix='!', description='Advanced dice bot')
+    app = commands.Bot(command_prefix='!')
     app.add_cog(BasicDice(app))
     app.add_cog(CoCDice(app))
     app.add_cog(CoCKeeperOnly(app))
     app.help_command = HelpCommand()
+    app.description = 'Dice 봇 명령어'
 
 
 @app.event
