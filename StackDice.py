@@ -206,6 +206,59 @@ def peek_low(x, dices: list):
     return sum(sdice[:-1])
 
 
+
+def calc_bonus(value, num, dices):
+    ddice = list()
+    dice(num, 10, ddice)
+    d = ddice[0][:-1]
+    d.sort()
+    v = value % 10
+    if v == 0:
+        if value // 10 > d[0]:
+            result = v + d[0] * 10
+        else:
+            result = value
+    else:
+        if 10 in d:
+            result = v
+        else:
+            if value // 10 > d[0]:
+                result = v + d[0] * 10
+            else:
+                result = value
+    d = [x if x != 10 else 0 for x in d]
+    d.sort()
+    dices.append([x * 10 for x in d])
+    return result
+
+
+def calc_penalty(value, num, dices):
+    ddice = list()
+    dice(num, 10, ddice)
+    d = ddice[0][:-1]
+    d.sort()
+    v = value % 10
+    if v == 0:
+        if 10 in d:
+            result = 100
+        else:
+            d = [x if x != 10 else 0 for x in d]
+            d.sort()
+            if value // 10 < d[-1]:
+                result = v + d[-1] * 10
+            else:
+                result = value
+    else:
+        d = [x if x != 10 else 0 for x in d]
+        d.sort()
+        if value // 10 < d[-1]:
+            result = v + d[-1] * 10
+        else:
+            result = value
+    dices.append([x * 10 for x in d])
+    return result
+
+
 def calc_expr(expr, dices, judge=None):
     if judge is None:
         judge = []
@@ -213,6 +266,19 @@ def calc_expr(expr, dices, judge=None):
     postfix = convert_expr(tokens)
     val = postfix_eval(postfix, dices, judge)
     return val
+
+
+def judgement(value, v):
+    result = {
+        v < value: "실패",
+        (v < 50 and value >= 96): "대실패",
+        (v / 2 < value <= v): "성공",
+        (v / 5 < value <= v / 2): "어려운 성공",
+        value <= v / 5: "극단적 성공",
+        value == 1: "1!",
+        value == 100: "100!"
+    }.get(True)
+    return [value, result]
 
 
 async def make_character(ctx: discord.ext.commands.Context):
