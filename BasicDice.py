@@ -45,7 +45,7 @@ class BasicDice(commands.Cog):
     async def alias_dice(self, ctx: discord.ext.commands.Context, *args):
         name = args[0]
         query = ''.join(args[1:])
-        key = str(ctx.guild) + str(ctx.author)
+        key = str(ctx.guild) + str(ctx.author.mention)
         global_vars.logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), 'dice alias', ''.join(args)]))
 
         global_vars.dice_alias[key + ":" + name] = query
@@ -70,7 +70,7 @@ class BasicDice(commands.Cog):
                       )
     async def roll_alias_dice_with_addition(self, ctx: discord.ext.commands.Context, *args):
         name = args[0]
-        key = str(ctx.guild) + str(ctx.author)
+        key = str(ctx.guild) + str(ctx.author.mention)
         global_vars.logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), 'roll alias', ''.join(args)]))
         if key + ":" + name in global_vars.dice_alias.keys():
             await self.r(ctx, global_vars.dice_alias[key + ":" + name] + ''.join(args[1:]))
@@ -85,7 +85,7 @@ class BasicDice(commands.Cog):
                       help='!ra 명령어로 별명이 지정된 주사위 표현식의 목록을 출력합니다.\n'
                       )
     async def roll_alias_list(self, ctx: discord.ext.commands.Context):
-        key = str(ctx.guild) + str(ctx.author)
+        key = str(ctx.guild) + str(ctx.author.mention)
         global_vars.logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), 'roll alias list']))
         result = {}
         for alias in global_vars.dice_alias.keys():

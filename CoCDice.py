@@ -58,7 +58,7 @@ class CoCDice(commands.Cog):
                            'b, p 연산을 사용하여 보너스, 페널티 주사위를 적용 할 수 있습니다.\n')
     async def roll2(self, ctx: discord.ext.commands.Context, *args):
         gv.logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), 'rr', ' '.join(args)]))
-        key = str(ctx.guild) + str(ctx.author)
+        key = str(ctx.guild) + str(ctx.author.mention)
         try:
 
             if key in gv.player:
@@ -112,7 +112,7 @@ class CoCDice(commands.Cog):
     async def use_player_sheet(self, ctx: discord.ext.commands.Context, *args):
         gv.logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), 'ruse', ' '.join(args)]))
         try:
-            user = ctx.author
+            user = ctx.author.mention
             guild: discord.guild.Guild = ctx.guild
 
             uri = args[0]
@@ -157,7 +157,7 @@ class CoCDice(commands.Cog):
                       help='!ruse 명령으로 등록한 시트를 해제하는 기능입니다.\n')
     async def reset_player_sheet(self, ctx: discord.ext.commands.Context):
         gv.logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), 'rreset']))
-        key = str(ctx.guild) + str(ctx.author)
+        key = str(ctx.guild) + str(ctx.author.mention)
         try:
             if key in gv.player:
                 del gv.player[key]
@@ -184,7 +184,7 @@ class CoCDice(commands.Cog):
     async def stat_player_sheet(self, ctx: discord.ext.commands.Context):
         gv.logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), 'rstat']))
         try:
-            key = str(ctx.guild) + str(ctx.author)
+            key = str(ctx.guild) + str(ctx.author.mention)
             if key in gv.player:
                 sheet = gv.player[key]
                 embed_message = discord.Embed(title=f"현재 사용하고 있는 탐사자는 \"{sheet.acell('E7').value}\"입니다.",
