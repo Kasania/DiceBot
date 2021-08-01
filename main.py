@@ -8,6 +8,8 @@ import discord
 from discord.ext import commands
 import gspread
 
+from discord.ext.commands import CommandNotFound
+
 global app
 
 if __name__ == '__main__':
@@ -80,7 +82,13 @@ if __name__ == '__main__':
     }
     logger.info('Data load complete')
 
-# TODO: dice alias
+
+@app.event
+async def on_command_error(ctx, error):
+    logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), ":", str(error)]))
+    if isinstance(error, CommandNotFound):
+        return
+    raise error
 
 
 @app.event
