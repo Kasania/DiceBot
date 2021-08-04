@@ -31,7 +31,7 @@ class HelpCommand(DefaultHelpCommand):
 
     async def send_cog_help(self, command):
         ctx = self.context
-        gv.logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), 'help cog', str(command)]))
+        gv.logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), 'help cog', str(command.name)]))
         await super().send_cog_help(command)
 
     def command_not_found(self, string):

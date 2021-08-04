@@ -9,7 +9,7 @@ import global_vars as gv
 import StackDice as sd
 
 
-class CoCDice(commands.Cog):
+class CoCDice(commands.Cog, name='coc-탐사자용'):
     def __init__(self, app):
         self.app = app
         self.fixed_sheet_position: Dict[str, str] = {
@@ -202,7 +202,7 @@ class CoCDice(commands.Cog):
             await ctx.send(embed=embed_message)
 
 
-class CoCKeeperOnly(commands.Cog):
+class CoCKeeperOnly(commands.Cog, name='coc-키퍼용'):
     def __init__(self, app):
         self.app = app
 

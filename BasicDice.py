@@ -6,7 +6,7 @@ import global_vars
 from discord.ext import commands
 
 
-class BasicDice(commands.Cog):
+class BasicDice(commands.Cog, name='기본주사위'):
     def __init__(self, app):
         self.app = app
 
@@ -14,7 +14,8 @@ class BasicDice(commands.Cog):
                       brief='기본 주사위 굴림 명령어',
                       description='!r 명령어 사용법',
                       usage='[주사위 표현식]'
-                            '\n!r (1d100+4d20h2)>=150',
+                            '\n!r 1d100+20'
+                            '\n!r (1d20+4d20h2)>=50',
                       help='[dice expr]에는 사칙연산 및 다이스 연산으로 표현된 주사위 표현식이 사용됩니다.\n'
                            '사용가능한 표현식은 아래와 같습니다.\n'
                            '\n'
