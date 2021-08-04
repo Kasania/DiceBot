@@ -104,3 +104,32 @@ class BasicDice(commands.Cog, name='기본주사위'):
             embed_message = discord.Embed(title="등록한 주사위 별명이 없습니다.")
             embed_message.add_field(name="플레이어", value=ctx.message.author.mention, inline=False)
             await ctx.send(embed=embed_message)
+
+    @commands.command(name='rd', pass_context=True,
+                      brief='별명이 지정된 주사위 표현식 제거',
+                      description='!rd 명령어 사용법',
+                      usage='rd [별명]'
+                            '\n!rd crit',
+                      help='!rd 명령어로 별명이 지정된 주사위 표현식을 제거합니다.\n'
+                           '개인/서버별로 분리되어 동작합니다.\n'
+                      )
+    async def roll_alias_delete(self, ctx: discord.ext.commands.Context, *args):
+        name = args[0]
+        key = str(ctx.guild) + str(ctx.author.mention)
+        global_vars.logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), 'roll alias delete', ''.join(args)]))
+        result = {}
+        if key + ":" + name in global_vars.dice_alias.keys():
+            result[name] = global_vars.dice_alias[key + ":" + name]
+        if len(result) > 0:
+            embed_message = discord.Embed(title="제거된 주사위 표현식 별명")
+            embed_message.add_field(name="플레이어", value=ctx.message.author.mention, inline=False)
+            for alias in result.keys():
+                embed_message.add_field(name=alias, value=result[alias])
+                del global_vars.dice_alias[key + ":" + name]
+                del global_vars.data_dice_alias[key + ":" + name]
+                pickle.dump(global_vars.data_dice_alias, open('data/dice_alias.txt', 'wb'))
+            await ctx.send(embed=embed_message)
+        else:
+            embed_message = discord.Embed(title="해당 주사위 별명이 없습니다.")
+            embed_message.add_field(name="플레이어", value=ctx.message.author.mention, inline=False)
+            await ctx.send(embed=embed_message)
