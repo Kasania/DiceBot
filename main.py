@@ -70,7 +70,7 @@ if __name__ == '__main__':
     app.add_cog(CoCDice(app))
     app.add_cog(CoCKeeperOnly(app))
     app.help_command = HelpCommand()
-    app.description = 'Dice 봇 명령어'
+    app.description = 'Dice 봇 명령어(명령어 접두사: !)'
 
 
 @app.event
@@ -106,4 +106,4 @@ async def on_guild_remove(guild):
     gv.logger.info(f'Name of server: {guild}')
     gv.logger.info(f"- Active Server count : {len(app.guilds)} -")
 
-app.run(keys.TOKEN)
+app.run(keys.TOKEN2)
