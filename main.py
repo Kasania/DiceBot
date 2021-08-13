@@ -106,4 +106,4 @@ async def on_guild_remove(guild):
     gv.logger.info(f'Name of server: {guild}')
     gv.logger.info(f"- Active Server count : {len(app.guilds)} -")
 
-app.run(keys.TOKEN2)
+app.run(keys.TOKEN)
