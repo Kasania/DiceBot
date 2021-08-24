@@ -36,6 +36,6 @@ class HelpCommand(DefaultHelpCommand):
 
     def command_not_found(self, string):
         ctx = self.context
-        gv.logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), 'help not found', str(string)]))
+        gv.logger.error(' '.join([str(ctx.guild), ':', str(ctx.author), 'help not found', str(string)]))
         return f'"{string}" 명령어가 존재하지 않습니다.'
 

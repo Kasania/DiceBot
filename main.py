@@ -1,4 +1,5 @@
 import logging
+import datetime
 
 from typing import Dict
 
@@ -18,6 +19,14 @@ from discord.ext.commands import CommandNotFound
 
 global app
 
+
+class SpecificFilter(object):
+    def __init__(self, level):
+        self.__level = level
+
+    def filter(self, log_record):
+        return log_record.levelno <= self.__level
+
 if __name__ == '__main__':
 
     gv.logger = logging.getLogger(__name__)
@@ -30,10 +39,24 @@ if __name__ == '__main__':
     console_handler.setFormatter(formatter)
     gv.logger.addHandler(console_handler)
 
-    file_debug_handler = logging.FileHandler(filename='log.txt', encoding='utf-8')
-    file_debug_handler.setLevel(logging.DEBUG)
+    current_time = str(datetime.datetime.now()).replace(' ', '.').replace(':', '.')
+
+    with open('./logs/'+current_time+'.log', 'w') as fp:
+        pass
+    file_debug_handler = logging.FileHandler(filename='./logs/'+current_time+'.log', encoding='utf-8')
+    file_debug_handler.setLevel(logging.INFO)
     file_debug_handler.setFormatter(formatter)
+    file_debug_handler.addFilter(SpecificFilter(logging.INFO))
+
+    with open('./logs/'+current_time+'.error', 'w') as fp:
+        pass
+    file_error_handler = logging.FileHandler(filename='./logs/'+current_time+'.error', encoding='utf-8')
+    file_error_handler.setLevel(logging.ERROR)
+    file_error_handler.setFormatter(formatter)
+    file_debug_handler.addFilter(SpecificFilter(logging.ERROR))
+
     gv.logger.addHandler(file_debug_handler)
+    gv.logger.addHandler(file_error_handler)
 
     gv.gc = gspread.authorize(keys.credentials)
     gv.data_docs: Dict[str, str] = pickle.load(open('data/docs.txt', 'rb'))
@@ -75,7 +98,7 @@ if __name__ == '__main__':
 
 @app.event
 async def on_command_error(ctx, error):
-    gv.logger.info(' '.join([str(ctx.guild), ':', str(ctx.author), ":", str(error)]))
+    gv.logger.error(' '.join([str(ctx.guild), ':', str(ctx.author), ":", str(error)]))
     if isinstance(error, CommandNotFound):
         return
     raise error
