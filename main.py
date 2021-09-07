@@ -78,7 +78,10 @@ if __name__ == '__main__':
     for key in gv.data_player.keys():
         tokens = gv.data_player[key].split('→')
         gv.docs[key] = gv.gc.open_by_url(tokens[0])
-        gv.player[key] = gv.docs[key].worksheet(tokens[1])
+        try:
+            gv.player[key] = gv.docs[key].worksheet(tokens[1])
+        except gspread.exceptions.WorksheetNotFound as e:
+            gv.logger.error("sheet load fail" + key)
     # sheet.url + '→' + sheet_name
 
     # guild:user:alias , query
