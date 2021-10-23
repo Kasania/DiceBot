@@ -78,24 +78,21 @@ class CoCDice(commands.Cog, name='coc-탐사자용'):
                         dice_value = sd.calc_expr(expr, dices, [])
                 jud = sd.judgement(dice_value, sheet_value)
                 embed_message = discord.Embed(title=f":game_die: {args[0]} 판정 : {jud[1]}!", color=0xff8400)
-                embed_message.add_field(name="플레이어", value=ctx.message.author.mention, inline=False)
                 embed_message.add_field(name="판정값", value=f"{jud[0]} <= {sheet_value}", inline=False)
 
                 if len(dices) > 1:
                     embed_message.add_field(name="주사위 목록",
                                             value='\n'.join(map(str, dices)), inline=False)
 
-                await ctx.send(embed=embed_message)
+                await ctx.reply(embed=embed_message)
             else:
-                embed_message = discord.Embed(title=f"등록된 탐사자가 없습니다.", description=f"플레이어 : {ctx.author.mention}",
-                                              color=0xff8400)
-                await ctx.send(embed=embed_message)
+                embed_message = discord.Embed(title=f"등록된 탐사자가 없습니다.", color=0xff8400)
+                await ctx.reply(embed=embed_message)
 
         except Exception as e:
-            embed_message = discord.Embed(title=f":x: 지원하지 않는 명령어입니다.", description=f"플레이어 : {ctx.author.mention}",
-                                          color=0xff8400)
+            embed_message = discord.Embed(title=f":x: 지원하지 않는 명령어입니다.", color=0xff8400)
             gv.logger.info(e)
-            await ctx.send(embed=embed_message)
+            await ctx.reply(embed=embed_message)
 
     @commands.command(name='ruse', pass_context=True,
                       brief='CoC 7th 다이스 굴리기 시트 등록',
@@ -135,20 +132,19 @@ class CoCDice(commands.Cog, name='coc-탐사자용'):
             gv.data_player[str(guild) + str(user)] = sheet_url + '→' + sheet_name
             pickle.dump(gv.data_player, open("data/sheet_data.txt", "wb"))
 
-            embed_message = discord.Embed(title=f"지금부터 \"{sheet.acell('E7').value}\" 탐사자를 사용합니다.",
-                                          description=f"플레이어 : {ctx.author.mention}", color=0xff8400)
-            await ctx.send(embed=embed_message)
+            embed_message = discord.Embed(title=f"지금부터 \"{sheet.acell('E7').value}\" 탐사자를 사용합니다.", color=0xff8400)
+            await ctx.reply(embed=embed_message)
 
         except gspread.exceptions.APIError as e:
             err_text = str(e.response)
             if err_text == '<Response [403]>':
                 embed_message = discord.Embed(title=f":x: 시트의 접근권한이 없습니다.",
-                                              description=f"플레이어 : {ctx.author.mention} \n 시트의 접근권한을 변경해 주세요.",
+                                              description=f"시트의 접근권한을 변경해 주세요.",
                                               color=0xff8400)
-                await ctx.send(embed=embed_message)
+                await ctx.reply(embed=embed_message)
         except gspread.exceptions.WorksheetNotFound:
             embed_message = discord.Embed(title=":x: 올바르지 않은 시트이름입니다.", color=0xff8400)
-            await ctx.send(embed=embed_message)
+            await ctx.reply(embed=embed_message)
 
     @commands.command(name='rreset', pass_context=True,
                       brief='등록된 CoC 7th 시트 해제',
@@ -163,18 +159,15 @@ class CoCDice(commands.Cog, name='coc-탐사자용'):
                 del gv.player[key]
                 del gv.data_player[key]
                 pickle.dump(gv.data_player, open("data/sheet_data.txt", "wb"))
-                embed_message = discord.Embed(title=f"탐사자 등록을 해제했습니다.", description=f"플레이어 : {ctx.author.mention}",
-                                              color=0xff8400)
-                await ctx.send(embed=embed_message)
+                embed_message = discord.Embed(title=f"탐사자 등록을 해제했습니다.",color=0xff8400)
+                await ctx.reply(embed=embed_message)
             else:
-                embed_message = discord.Embed(title=f"등록된 탐사자가 없습니다.", description=f"플레이어 : {ctx.author.mention}",
-                                              color=0xff8400)
-                await ctx.send(embed=embed_message)
+                embed_message = discord.Embed(title=f"등록된 탐사자가 없습니다.", color=0xff8400)
+                await ctx.reply(embed=embed_message)
         except Exception as e:
-            embed_message = discord.Embed(title=f":x: 명령을 수행하는데 실패했습니다.",
-                                          description=f"플레이어 : {ctx.author.mention}", color=0xff8400)
+            embed_message = discord.Embed(title=f":x: 명령을 수행하는데 실패했습니다.", color=0xff8400)
             gv.logger.info(e)
-            await ctx.send(embed=embed_message)
+            await ctx.reply(embed=embed_message)
 
     @commands.command(name='rstat', pass_context=True,
                       brief='등록된 CoC 7th 시트 확인',
@@ -188,18 +181,16 @@ class CoCDice(commands.Cog, name='coc-탐사자용'):
             if key in gv.player:
                 sheet = gv.player[key]
                 embed_message = discord.Embed(title=f"현재 사용하고 있는 탐사자는 \"{sheet.acell('E7').value}\"입니다.",
-                                              description=f"플레이어: {ctx.author.mention}", color=0xff8400)
-                embed_message.add_field(name="시트링크", value=gv.docs[key].url + ' # ' + sheet.title, inline=False)
-                await ctx.send(embed=embed_message)
-            else:
-                embed_message = discord.Embed(title=f"등록된 탐사자가 없습니다.", description=f"플레이어 : {ctx.author.mention}",
                                               color=0xff8400)
-                await ctx.send(embed=embed_message)
+                embed_message.add_field(name="시트링크", value=gv.docs[key].url + ' # ' + sheet.title, inline=False)
+                await ctx.reply(embed=embed_message)
+            else:
+                embed_message = discord.Embed(title=f"등록된 탐사자가 없습니다.", color=0xff8400)
+                await ctx.reply(embed=embed_message)
         except Exception as e:
-            embed_message = discord.Embed(title=f":x: 명령을 수행하는데 실패했습니다.",
-                                          description=f"플레이어 : {ctx.author.mention}", color=0xff8400)
+            embed_message = discord.Embed(title=f":x: 명령을 수행하는데 실패했습니다.", color=0xff8400)
             gv.logger.info(e)
-            await ctx.send(embed=embed_message)
+            await ctx.reply(embed=embed_message)
 
 
 class CoCKeeperOnly(commands.Cog, name='coc-키퍼용'):
@@ -228,30 +219,27 @@ class CoCKeeperOnly(commands.Cog, name='coc-키퍼용'):
                 doc = gv.gc.open_by_url(uri)
                 key = str(guild) + str(name)
                 if key in gv.pre_docs.keys():
-                    embed_message = discord.Embed(title=f"{name} 이름의 시트 별명은 이미 존재합니다.",
-                                                  description=f"마스터 : {ctx.author.mention}", color=0xff8400)
+                    embed_message = discord.Embed(title=f"{name} 이름의 시트 별명은 이미 존재합니다.", color=0xff8400)
                     embed_message.add_field(name="시트링크", value=gv.pre_docs[key].url, inline=False)
-                    await ctx.send(embed=embed_message)
+                    await ctx.reply(embed=embed_message)
                 else:
                     gv.pre_docs[key] = doc
                     gv.data_pre_docs[key] = uri
                     pickle.dump(gv.data_pre_docs, open("data/docs_alias.txt", "wb"))
-                    embed_message = discord.Embed(title=f"{name} 시트 별명을 등록했습니다.",
-                                                  description=f"마스터 : {ctx.author.mention}", color=0xff8400)
+                    embed_message = discord.Embed(title=f"{name} 시트 별명을 등록했습니다.", color=0xff8400)
                     embed_message.add_field(name="시트링크", value=gv.pre_docs[key].url, inline=False)
-                    await ctx.send(embed=embed_message)
+                    await ctx.reply(embed=embed_message)
 
             except gspread.exceptions.APIError as e:
                 err_text = str(e.response)
                 if err_text == '<Response [403]>':
                     embed_message = discord.Embed(title=f":x: 시트의 접근권한이 없습니다.",
-                                                  description=f"마스터 : {ctx.author.mention} \n 시트의 접근권한을 변경해 주세요.",
+                                                  description=f"시트의 접근권한을 변경해 주세요.",
                                                   color=0xff8400)
-                    await ctx.send(embed=embed_message)
+                    await ctx.reply(embed=embed_message)
         else:
-            embed_message = discord.Embed(title=f":x: 명령을 수행할 권한이 없습니다.",
-                                          description=f"플레이어 : {ctx.author.mention}", color=0xff8400)
-            await ctx.send(embed=embed_message)
+            embed_message = discord.Embed(title=f":x: 명령을 수행할 권한이 없습니다.", color=0xff8400)
+            await ctx.reply(embed=embed_message)
 
     @commands.command(name='rremove', pass_context=True,
                       brief='CoC 7th 시트링크 별명 제거',
@@ -272,17 +260,14 @@ class CoCKeeperOnly(commands.Cog, name='coc-키퍼용'):
                 del gv.pre_docs[key]
                 del gv.data_pre_docs[key]
                 pickle.dump(gv.data_pre_docs, open("data/docs_alias.txt", "wb"))
-                embed_message = discord.Embed(title=f"{name} 이름의 시트 별명을 등록 해제했습니다.",
-                                              description=f"마스터 : {ctx.author.mention}", color=0xff8400)
-                await ctx.send(embed=embed_message)
+                embed_message = discord.Embed(title=f"{name} 이름의 시트 별명을 등록 해제했습니다.", color=0xff8400)
+                await ctx.reply(embed=embed_message)
             else:
-                embed_message = discord.Embed(title=f"{name} 이름의 시트 별명은 존재하지 않습니다.",
-                                              description=f"마스터 : {ctx.author.mention}", color=0xff8400)
-                await ctx.send(embed=embed_message)
+                embed_message = discord.Embed(title=f"{name} 이름의 시트 별명은 존재하지 않습니다.", color=0xff8400)
+                await ctx.reply(embed=embed_message)
         else:
-            embed_message = discord.Embed(title=f":x: 명령을 수행할 권한이 없습니다.",
-                                          description=f"플레이어 : {ctx.author.mention}", color=0xff8400)
-            await ctx.send(embed=embed_message)
+            embed_message = discord.Embed(title=f":x: 명령을 수행할 권한이 없습니다.", color=0xff8400)
+            await ctx.reply(embed=embed_message)
 
     @commands.command(name='rclear', pass_context=True,
                       brief='등록된 CoC 7th 시트 전체 해제',
@@ -311,14 +296,11 @@ class CoCKeeperOnly(commands.Cog, name='coc-키퍼용'):
             if len(message) > 0:
                 pickle.dump(gv.data_player, open("data/sheet_data.txt", "wb"))
                 embed_message = discord.Embed(title=f":x: 다음 플레이어 시트를 등록 해제했습니다.",
-                                              description=f"마스터: {ctx.author.mention}",
                                               color=0xff8400)
                 embed_message.add_field(name="등록 해제 목록", value='\n'.join(message), inline=False)
             else:
                 embed_message = discord.Embed(title=f":x: 등록 해제할 플레이어 시트가 없습니다.",
-                                              description=f"마스터: {ctx.author.mention}",
                                               color=0xff8400)
         else:
-            embed_message = discord.Embed(title=f":x: 명령을 수행할 권한이 없습니다.",
-                                          description=f"플레이어 : {ctx.author.mention}", color=0xff8400)
-        await ctx.send(embed=embed_message)
+            embed_message = discord.Embed(title=f":x: 명령을 수행할 권한이 없습니다.", color=0xff8400)
+        await ctx.reply(embed=embed_message)

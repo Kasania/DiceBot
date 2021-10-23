@@ -54,10 +54,9 @@ class BasicDice(commands.Cog, name='기본주사위'):
         pickle.dump(global_vars.data_dice_alias, open('data/dice_alias.txt', 'wb'))
 
         embed_message = discord.Embed(title="주사위 별명이 등록되었습니다.")
-        embed_message.add_field(name="플레이어", value=ctx.message.author.mention, inline=False)
         embed_message.add_field(name="주사위 별명", value=name, inline=False)
         embed_message.add_field(name="주사위 명령", value=query, inline=False)
-        await ctx.send(embed=embed_message)
+        await ctx.reply(embed=embed_message)
 
     @commands.command(name='rt', pass_context=True,
                       brief='별명이 지정된 주사위 표현식 굴리기',
@@ -77,7 +76,7 @@ class BasicDice(commands.Cog, name='기본주사위'):
             await self.r(ctx, global_vars.dice_alias[key + ":" + name] + ''.join(args[1:]))
         else:
             embed_message = discord.Embed(title="존재하지 않는 주사위 별명입니다.")
-            await ctx.send(embed=embed_message)
+            await ctx.reply(embed=embed_message)
 
     @commands.command(name='rl', pass_context=True,
                       brief='별명이 지정된 주사위 표현식 목록 출력',
@@ -95,15 +94,13 @@ class BasicDice(commands.Cog, name='기본주사위'):
                 result[(alias0.replace(key+":", ""))] = global_vars.dice_alias[alias]
         if len(result) > 0:
             embed_message = discord.Embed(title="주사위 표현식 별명 목록")
-            embed_message.add_field(name="플레이어", value=ctx.message.author.mention, inline=False)
             for alias in result.keys():
                 embed_message.add_field(name=alias, value=result[alias])
 
-            await ctx.send(embed=embed_message)
+            await ctx.reply(embed=embed_message)
         else:
             embed_message = discord.Embed(title="등록한 주사위 별명이 없습니다.")
-            embed_message.add_field(name="플레이어", value=ctx.message.author.mention, inline=False)
-            await ctx.send(embed=embed_message)
+            await ctx.reply(embed=embed_message)
 
     @commands.command(name='rd', pass_context=True,
                       brief='별명이 지정된 주사위 표현식 제거',
@@ -122,14 +119,12 @@ class BasicDice(commands.Cog, name='기본주사위'):
             result[name] = global_vars.dice_alias[key + ":" + name]
         if len(result) > 0:
             embed_message = discord.Embed(title="제거된 주사위 표현식 별명")
-            embed_message.add_field(name="플레이어", value=ctx.message.author.mention, inline=False)
             for alias in result.keys():
                 embed_message.add_field(name=alias, value=result[alias])
                 del global_vars.dice_alias[key + ":" + name]
                 del global_vars.data_dice_alias[key + ":" + name]
                 pickle.dump(global_vars.data_dice_alias, open('data/dice_alias.txt', 'wb'))
-            await ctx.send(embed=embed_message)
+            await ctx.reply(embed=embed_message)
         else:
             embed_message = discord.Embed(title="해당 주사위 별명이 없습니다.")
-            embed_message.add_field(name="플레이어", value=ctx.message.author.mention, inline=False)
-            await ctx.send(embed=embed_message)
+            await ctx.reply(embed=embed_message)

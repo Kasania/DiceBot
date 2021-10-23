@@ -284,7 +284,6 @@ def judgement(value, v):
 async def make_character(ctx: discord.ext.commands.Context):
     dices = []
     embed_message = discord.Embed(title=f":game_die: CoC 7th 캐릭터 메이킹", color=0xff8400)
-    embed_message.add_field(name="플레이어", value=ctx.message.author.mention, inline=False)
 
     embed_message.add_field(name="근력", value=calc_expr('3d6*5', dices), inline=True)
     embed_message.add_field(name="민첩", value=calc_expr('3d6*5', dices), inline=True)
@@ -300,7 +299,7 @@ async def make_character(ctx: discord.ext.commands.Context):
 
     embed_message.add_field(name="주사위 목록",
                             value='\n'.join(map(str, dices)), inline=True)
-    await ctx.send(embed=embed_message)
+    await ctx.reply(embed=embed_message)
 
 
 async def roll_dice(ctx: discord.ext.commands.Context, query):
@@ -322,7 +321,6 @@ async def roll_dice(ctx: discord.ext.commands.Context, query):
             embed_message = discord.Embed(title=f":game_die: 결과: {result}", color=0xff8400)
 
         embed_message.add_field(name="명령", value=query, inline=False)
-        embed_message.add_field(name="플레이어", value=ctx.message.author.mention, inline=False)
         if len(judge) > 0:
             embed_message.add_field(name="판정 목록",
                                     value='\n'.join(map(str, judge)), inline=False)
@@ -332,7 +330,6 @@ async def roll_dice(ctx: discord.ext.commands.Context, query):
         if len(embed_message) > 900:
             embed_message = discord.Embed(title=f":game_die: 결과: {result}", color=0xff8400)
             embed_message.add_field(name="명령", value=query, inline=False)
-            embed_message.add_field(name="플레이어", value=ctx.message.author.mention, inline=False)
             embed_message.add_field(name="주사위 목록",
                                     value='\n'.join([item[-1] for item in dices]), inline=False)
     except AssertionError:
@@ -344,4 +341,4 @@ async def roll_dice(ctx: discord.ext.commands.Context, query):
     except Exception as e:
         embed_message = discord.Embed(title=f":x: 지원하지 않는 명령어입니다.",
                                       description=str(e), color=0xff8400)
-    await ctx.send(embed=embed_message)
+    await ctx.reply(embed=embed_message)
