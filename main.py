@@ -80,7 +80,7 @@ if __name__ == '__main__':
         gv.docs[key] = gv.gc.open_by_url(tokens[0])
         try:
             gv.player[key] = gv.docs[key].worksheet(tokens[1])
-        except gspread.exceptions.WorksheetNotFound as e:
+        except Exception as e:
             gv.logger.error("sheet load fail" + key)
     # sheet.url + '→' + sheet_name
 
